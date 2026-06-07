@@ -1,0 +1,14 @@
+[
+  {
+    "topic": "The Future of Remote Work",
+    "template": "listicle",
+    "tone": "professional",
+    "keywords": ["remote work", "WFH", "productivity"]
+  },
+  {
+    "topic": "How to Start a Podcast",
+    "template": "how_to",
+    "tone": "casual",
+    "keywords": ["podcast", "audio", "recording"]
+  }
+]

@@ -1,0 +1,8 @@
+groups:
+  - name: generation_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: rate(generation_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning

@@ -1,0 +1,12 @@
+[
+  {
+    "type": "welcome",
+    "subject": "Welcome to our community!",
+    "tone": "friendly"
+  },
+  {
+    "type": "promotional",
+    "subject": "Special offer just for you",
+    "tone": "persuasive"
+  }
+]
