@@ -7,6 +7,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
     depends_on:
       - backend
       - frontend
@@ -17,7 +20,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    env_file: .env
+    env_file:
+      - .env
+      - .env.secrets
     depends_on:
       postgres:
         condition: service_healthy

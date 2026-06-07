@@ -1,12 +1,12 @@
 import React from 'react';
 
-function LoadingSpinner() {
+const LoadingSpinner = ({ message = 'Loading...', size = 'md' }) => {
   return (
-    <div className="loading-spinner">
+    <div className={`loading-spinner loading-spinner--${size}`}>
       <div className="spinner"></div>
-      <p>Generating...</p>
+      {message && <p className="loading-spinner-message">{message}</p>}
     </div>
   );
-}
+};
 
 export default LoadingSpinner;

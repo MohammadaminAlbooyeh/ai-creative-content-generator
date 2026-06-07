@@ -6,6 +6,7 @@ from backend.api.auth_routes import router as auth_router
 from backend.middleware.error_handler import register_error_handlers
 from backend.middleware.auth_middleware import AuthMiddleware
 from backend.middleware.rate_limiter import RateLimiterMiddleware
+from backend.middleware.logging_middleware import LoggingMiddleware
 from backend.utils.config import settings
 from backend.models.database import engine, Base
 
@@ -24,6 +25,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(LoggingMiddleware)
 app.add_middleware(AuthMiddleware)
 app.add_middleware(RateLimiterMiddleware)
 

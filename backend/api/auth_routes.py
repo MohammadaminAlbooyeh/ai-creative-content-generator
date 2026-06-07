@@ -1,13 +1,14 @@
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from jose import jwt
 from passlib.context import CryptContext
 
 from backend.models.user import User
 from backend.api.dependencies import get_db
 from backend.utils.config import settings
+from backend.utils.validators import validate_email, validate_password, validate_username
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -18,10 +19,42 @@ class RegisterRequest(BaseModel):
     email: str
     password: str
 
+    @field_validator("username")
+    @classmethod
+    def check_username(cls, v):
+        err = validate_username(v)
+        if err:
+            raise ValueError(err)
+        return v.strip()
+
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, v):
+        err = validate_email(v)
+        if err:
+            raise ValueError(err)
+        return v.strip()
+
+    @field_validator("password")
+    @classmethod
+    def check_password(cls, v):
+        err = validate_password(v)
+        if err:
+            raise ValueError(err)
+        return v
+
 
 class LoginRequest(BaseModel):
     username: str
     password: str
+
+    @field_validator("username")
+    @classmethod
+    def check_username(cls, v):
+        err = validate_username(v)
+        if err:
+            raise ValueError(err)
+        return v.strip()
 
 
 class AuthResponse(BaseModel):

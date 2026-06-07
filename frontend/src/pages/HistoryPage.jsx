@@ -1,39 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import api from '../services/api';
+import React, { useEffect } from 'react';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorDisplay from '../components/ErrorDisplay';
+import { useContentHistory } from '../hooks/useContentHistory';
 
 function HistoryPage() {
-  const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { items, loading, error, fetchHistory, deleteItem } = useContentHistory();
 
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const data = await api.get('/api/v1/history');
-        setHistory(data.history || []);
-      } catch (err) {
-        console.error('Failed to load history:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchHistory();
-  }, []);
+  }, [fetchHistory]);
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <LoadingSpinner message="Loading history..." />;
 
   return (
-    <div className="page">
-      <h2>Generation History</h2>
-      {history.length === 0 ? (
-        <p>No generation history yet.</p>
+    <div className="generator-page">
+      <h1>Generation History</h1>
+      <p className="page-description">View your past content generations</p>
+
+      {error && <ErrorDisplay message={error} variant="error" />}
+
+      {items.length === 0 ? (
+        <p style={{ color: '#6b7280', padding: '24px 0' }}>No generation history yet. Start creating content!</p>
       ) : (
-        <div className="history-list">
-          {history.map((entry) => (
-            <div key={entry.id} className="history-item">
-              <span className="badge">{entry.content_type}</span>
-              <span className="provider">{entry.provider}</span>
-              <span className="date">{entry.created_at}</span>
+        <div className="content-grid">
+          {items.map((entry) => (
+            <div key={entry.id} className="content-card">
+              <div className="content-card-header">
+                <span className="content-card-title">{entry.content_type}</span>
+                <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{entry.provider}</span>
+              </div>
+              <div className="content-card-body">
+                {entry.content?.substring(0, 150)}
+                {(entry.content?.length || 0) > 150 ? '...' : ''}
+              </div>
+              <div className="content-card-footer">
+                <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                  {entry.created_at ? new Date(entry.created_at).toLocaleDateString() : ''}
+                </span>
+                <button className="btn btn-danger btn-sm" onClick={() => deleteItem(entry.id)}>
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>

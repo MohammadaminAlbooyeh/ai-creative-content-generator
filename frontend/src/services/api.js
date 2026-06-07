@@ -1,16 +1,33 @@
+import authService from './auth';
+
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 class ApiService {
+  getAuthHeaders() {
+    const token = authService.getToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+  }
+
   async request(method, endpoint, data = null) {
     const config = {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders(),
     };
     if (data) config.body = JSON.stringify(data);
 
     const response = await fetch(`${BASE_URL}${endpoint}`, config);
     if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`);
+      if (response.status === 401) {
+        authService.logout();
+        window.location.href = '/login';
+        throw new Error('Session expired. Please log in again.');
+      }
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.detail || `API error: ${response.statusText}`);
     }
     return response.json();
   }
