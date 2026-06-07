@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     APP_NAME: str = "AI Creative Content Generator"
     DEBUG: bool = True
     SECRET_KEY: str = "your-secret-key"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRATION_HOURS: int = 24
     ALLOWED_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:8000"]
 
     OPENAI_API_KEY: Optional[str] = None

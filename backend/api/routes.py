@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from backend.api.schemas import (
     GenerateRequest, GenerateResponse,
@@ -6,7 +6,8 @@ from backend.api.schemas import (
     ImageRequest, VoiceRequest, VideoRequest, BundleRequest,
 )
 from backend.services.generation_service import GenerationService
-from backend.api.dependencies import get_generation_service
+from backend.services.content_service import ContentService
+from backend.api.dependencies import get_generation_service, get_content_service
 
 router = APIRouter()
 
@@ -22,6 +23,7 @@ async def generate_content(
 @router.post("/generate/blog", response_model=GenerateResponse)
 async def generate_blog(
     request: BlogRequest,
+    req: Request,
     service: GenerationService = Depends(get_generation_service),
 ):
     return await service.generate_blog(request)
@@ -92,9 +94,25 @@ async def get_templates_by_type(
 
 @router.get("/history")
 async def get_history(
+    req: Request,
     service: GenerationService = Depends(get_generation_service),
 ):
-    return await service.get_history()
+    user_id = getattr(req.state, "user_id", None)
+    return await service.get_history(user_id)
+
+
+@router.get("/content")
+async def list_content(
+    req: Request,
+    content_type: str = None,
+    service: ContentService = Depends(get_content_service),
+):
+    user_id = getattr(req.state, "user_id", None)
+    if content_type:
+        items = await service.list_by_type(content_type, user_id)
+    else:
+        items = await service.list_all(user_id)
+    return {"items": [item.to_dict() for item in items]}
 
 
 @router.get("/content/{content_id}")
@@ -103,3 +121,12 @@ async def get_content(
     service: GenerationService = Depends(get_generation_service),
 ):
     return await service.get_content(content_id)
+
+
+@router.delete("/content/{content_id}")
+async def delete_content(
+    content_id: str,
+    service: ContentService = Depends(get_content_service),
+):
+    deleted = await service.delete(content_id)
+    return {"deleted": deleted}

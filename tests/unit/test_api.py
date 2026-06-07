@@ -12,6 +12,6 @@ class TestAPI:
         assert response.status_code == 200
         assert response.json()["status"] == "healthy"
 
-    def test_list_templates(self):
+    def test_list_templates_requires_auth(self):
         response = client.get("/api/v1/templates")
-        assert response.status_code == 200
+        assert response.status_code == 401

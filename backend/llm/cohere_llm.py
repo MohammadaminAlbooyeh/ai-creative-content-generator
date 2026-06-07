@@ -1,3 +1,4 @@
+import asyncio
 import cohere
 from backend.utils.config import settings
 
@@ -8,10 +9,14 @@ class CohereLLM:
         self.model = "command-r"
 
     async def generate(self, system_prompt: str, user_prompt: str, temperature: float = 0.7, max_tokens: int = 2048):
-        response = self.client.generate(
-            model=self.model,
-            prompt=f"{system_prompt}\n\n{user_prompt}",
-            temperature=temperature,
-            max_tokens=max_tokens,
+        loop = asyncio.get_event_loop()
+        response = await loop.run_in_executor(
+            None,
+            lambda: self.client.generate(
+                model=self.model,
+                prompt=f"{system_prompt}\n\n{user_prompt}",
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
         )
         return response.generations[0].text
